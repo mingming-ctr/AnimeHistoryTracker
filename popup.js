@@ -31,12 +31,12 @@ function displayRecords(records) {
     const historyList = document.getElementById('historyList'); // 假设你有一个列表来显示记录
     historyList.innerHTML = ''; // 清空现有内容
 
-    // 使用 Map 存储每个动漫的最大集数记录
+    // 使用 Map 存储每个动漫的最近观看记录
     const latestRecords = new Map();
 
     records.forEach(record => {
-        // 只保留每个动漫的最大集数记录
-        if (!latestRecords.has(record.title) || latestRecords.get(record.title).episode < record.episode) {
+        // 只保留每个动漫最近观看的记录
+        if (!latestRecords.has(record.title) || new Date(latestRecords.get(record.title).timestamp) < new Date(record.timestamp)) {
             latestRecords.set(record.title, record);
         }
     });
