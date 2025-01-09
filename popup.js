@@ -46,19 +46,34 @@ function displayRecords(records) {
 
     sortedRecords.forEach(record => {
         const listItem = document.createElement('li');
-        
-        // 创建链接元素
-        const link = document.createElement('a');
-        link.textContent = `${record.title} 第${record.episode}集`; // 设置链接文本
-        link.href = record.url; // 设置链接地址
-        link.target = '_blank'; // 在新标签页中打开链接
-        link.onclick = () => {
-            chrome.tabs.create({ url: record.url });
-            return false;
-        };
 
-        // 将链接添加到列表项中
-        listItem.appendChild(link);
+        // 创建包含动画片名称和集数的容器
+        const recordContainer = document.createElement('div');
+        recordContainer.style.display = 'flex';
+        recordContainer.style.justifyContent = 'space-between';
+        recordContainer.style.width = '100%';
+
+        // 创建动画片名称元素
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'record-title';
+        titleSpan.style.flex = '1'; // 使用 flex 布局
+        titleSpan.textContent = record.title; // 设置动画片名称
+
+        // 创建集数链接元素
+        const episodeLink = document.createElement('a');
+        episodeLink.className = 'record-episode';
+        episodeLink.href = record.url; // 设置链接地址
+        episodeLink.target = '_blank'; // 在新标签页中打开链接
+
+        // 设置集数文本
+        episodeLink.textContent = `第${record.episode}集`; // 设置集数
+
+        // 将动画片名称和集数添加到容器中
+        recordContainer.appendChild(titleSpan);
+        recordContainer.appendChild(episodeLink);
+
+        // 将容器添加到列表项中
+        listItem.appendChild(recordContainer);
         historyList.appendChild(listItem);
     });
 }

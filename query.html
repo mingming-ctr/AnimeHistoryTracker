@@ -38,8 +38,11 @@
             width: 100%; /* 确保每个项宽度占满容器 */
         }
         .record-title {
-            flex: 2;
+            flex: 0.5; /* 调整为0.5，控制宽度 */
             text-align: left;
+            overflow: hidden; /* 隐藏超出部分 */
+            white-space: nowrap; /* 不换行 */
+            text-overflow: ellipsis; /* 超出部分用省略号表示 */
         }
         .record-url {
             flex: 2;
@@ -48,16 +51,20 @@
         .record-episode {
             flex: 1;
             text-align: left;
+            font-size: 10px; /* 减小集数字体大小 */
         }
         .delete-button {
             margin-left: 10px;
+        }
+        h1 {
+            font-size: 30px; /* 增加标题字体大小 */
         }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- 观看历史 CRUD 操作 -->
-        <h1>观看历史查询</h1>
+        <h1 style="margin: 5px 0;">观看历史查询</h1>
         <div style="text-align: center;">
             <input type="text" id="search" placeholder="模糊查询">
             <button id='searchButton'>搜索</button>

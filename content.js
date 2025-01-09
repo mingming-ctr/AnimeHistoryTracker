@@ -35,7 +35,6 @@ button.onclick = function(event) {
     // 使用正则表达式匹配并增加最后一个数字
     const nextUrl = currentUrl.replace(/(\d+)(?=\.html$)/, (match) => parseInt(match) + 1);
     console.log('下一个URL:', nextUrl); // 调试日志
-    
     // 跳转到下一个视频
     try {
         window.location.href = nextUrl;
@@ -43,6 +42,17 @@ button.onclick = function(event) {
         console.error('跳转到下一个视频失败:', error); // 调试日志
     }
 };
+
+// 添加键盘事件监听器
+document.addEventListener('keydown', function(event) {
+    console.log('按下的键:', event.code); // 打印按下的键
+    console.log('键盘事件被触发'); // 添加日志
+    if (event.code === 'NumpadEnter') { // 检查是否按下回车键
+        console.log('回车键被按下，触发按钮点击'); // 添加日志
+        button.click(); // 触发按钮点击事件
+        event.preventDefault(); // 防止默认行为
+    }
+});
 
 // 找到搜索框并将按钮添加到搜索框旁边
 const searchBar = document.querySelector('div.searchbar');

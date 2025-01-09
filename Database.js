@@ -15,6 +15,8 @@ export async function openDatabase() {
         // 如果对象存储不存在，则创建它
         if (!db.objectStoreNames.contains('watchHistory')) {
             const objectStore = db.createObjectStore('watchHistory', { keyPath: 'id', autoIncrement: true });
+            objectStore.createIndex('timestamp', 'timestamp', { unique: false }); // Create an index for timestamp
+            objectStore.createIndex('timestampUTC8', 'timestampUTC8', { unique: false }); // Create an index for timestamp in UTC+8
             console.log(`对象存储 ${objectStore.name} 已创建`);
         } else {
             console.log(`对象存储 watchHistory 已存在`);
@@ -67,6 +69,15 @@ export async function saveWatchHistory(record) {
             const objectStore = transaction.objectStore('watchHistory');
 
             // 直接使用 record 对象添加到对象存储，无需 id
+            const date = new Date();
+            const offset = date.getTimezoneOffset() * 60 * 1000; // Get timezone offset in milliseconds
+            const utc8Date = new Date(date.getTime() + offset + 8 * 60 * 60 * 1000); // Convert to UTC+8
+            record.timestamp = date.toISOString(); // Automatically set the current timestamp
+            record.timestampUTC8 = utc8Date.toISOString(); // Automatically set the current timestamp in UTC+8
+
+            const episodeMatch = record.episode.match(/\d+/); // 提取集数中的数字
+            record.episode = episodeMatch ? parseInt(episodeMatch[0]) : null; // 存储为数字
+
             const addRequest = objectStore.add(record);
 
             addRequest.onsuccess = () => {
