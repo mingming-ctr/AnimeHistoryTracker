@@ -2,38 +2,38 @@
 import { WatchHistoryRecord } from './WatchHistory.js';
 
 let db;
+const dbName = 'AnimeHistoryDB'; // 数据库名称
 
 // 打开数据库的函数
 export async function openDatabase() {
-    return new Promise((resolve, reject) => {
-        const request = indexedDB.open('AnimeHistoryDB', 1);
+    // 打开数据库
+    const request = indexedDB.open(dbName, 1);
 
-        request.onupgradeneeded = (event) => {
-            const db = event.target.result;
-            // 创建对象存储
+    request.onupgradeneeded = function(event) {
+        const db = event.target.result;
+
+        // 如果对象存储不存在，则创建它
+        if (!db.objectStoreNames.contains('watchHistory')) {
             const objectStore = db.createObjectStore('watchHistory', { keyPath: 'id', autoIncrement: true });
-            objectStore.createIndex('title', 'title', { unique: false });
-            objectStore.createIndex('url', 'url', { unique: false });
-            objectStore.createIndex('episode', 'episode', { unique: false });
-        };
+            console.log(`对象存储 ${objectStore.name} 已创建`);
+        } else {
+            console.log(`对象存储 watchHistory 已存在`);
+        }
+    };
 
-        request.onsuccess = () => {
-            console.log('数据库打开成功');
-            // 打印表和记录
-            printDatabaseRecords();
-            resolve();
-        };
+    request.onsuccess = function(event) {
+        db = event.target.result;
+        console.log(`数据库 ${dbName} 已成功创建或打开`);
+    };
 
-        request.onerror = (event) => {
-            console.error('数据库打开失败:', event.target.error);
-            reject(new Error('数据库打开失败'));
-        };
-    });
+    request.onerror = function(event) {
+        console.error(`打开数据库时发生错误: ${event.target.error}`);
+    };
 }
 
 // 打印数据库记录的函数
 async function printDatabaseRecords() {
-    const request = indexedDB.open('AnimeHistoryDB', 1);
+    const request = indexedDB.open(dbName, 1);
 
     request.onsuccess = (event) => {
         const db = event.target.result;
@@ -59,37 +59,30 @@ async function printDatabaseRecords() {
 // 保存观看历史的函数
 export async function saveWatchHistory(record) {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open('AnimeHistoryDB', 1); // 确保数据库名称一致
+        const request = indexedDB.open(dbName, 1); // 确保数据库名称一致
 
         request.onsuccess = (event) => {
             const db = event.target.result;
             const transaction = db.transaction(['watchHistory'], 'readwrite');
             const objectStore = transaction.objectStore('watchHistory');
 
-            // 为记录添加时间戳，并将集数转换为数字
-            const recordWithTimestamp = {
-                title: record.title,
-                url: record.url,
-                episode: parseInt(record.episode.replace(/第|集/g, ''), 10), // 去掉“第”和“集”，并转换为数字
-                timestamp: new Date().toISOString() // 添加当前时间戳
-            };
-
-            const addRequest = objectStore.add(recordWithTimestamp);
+            // 直接使用 record 对象添加到对象存储，无需 id
+            const addRequest = objectStore.add(record);
 
             addRequest.onsuccess = () => {
-                console.log('观看历史已保存:', recordWithTimestamp);
-                resolve();
+                console.log("Item added to the object store:", record);
+                resolve(record);
             };
 
-            addRequest.onerror = (event) => {
-                console.error('保存观看历史失败:', event.target.error);
-                reject(new Error('保存观看历史失败'));
+            addRequest.onerror = () => {
+                console.error("Error adding item:", addRequest.error);
+                reject(addRequest.error);
             };
         };
 
         request.onerror = (event) => {
-            console.error('数据库打开失败:', event.target.error);
-            reject(new Error('数据库打开失败'));
+            console.error(`打开数据库时发生错误: ${event.target.error}`);
+            reject(event.target.error);
         };
     });
 }
