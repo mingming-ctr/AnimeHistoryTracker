@@ -1,26 +1,21 @@
 {
   "manifest_version": 3,
-  "name": "ChromePlayer",
+  "name": "AnimeHistoryTracker",
   "version": "1.0",
   "permissions": [
-    "storage"
+    "storage",
+    "activeTab"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "action": {
     "default_popup": "popup.html",
-    "default_icon": {
-      "16": "images/icon16.png",
-      "48": "images/icon48.png",
-      "128": "images/icon128.png"
-    }
+    "default_icon": "icon.png"
   },
-  "background": {
-    "service_worker": "background.js",
-    "type": "module"
-  },
-  "content_scripts": [
-    {
-      "matches": ["https://www.295k.cc/*"],
-      "js": ["content.js"]
-    }
-  ]
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  }
 }
