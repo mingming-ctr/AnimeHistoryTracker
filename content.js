@@ -85,3 +85,24 @@ if (pattern.test(currentUrl)) {
 } else {
     console.log('当前播放地址不符合要求，不用记录。');
 }
+
+// 添加播放最新按钮
+const playLatestButton = document.createElement('button');
+playLatestButton.innerText = '播放最新';
+playLatestButton.style.margin = '10px';
+
+// 修改播放最新按钮的样式，应用 mac_user 类
+playLatestButton.className = 'mac_user header-op-user';
+
+playLatestButton.onclick = function(event) {
+    event.preventDefault(); // 阻止默认的提交行为
+    const lastEpisodeLink = document.querySelector('.module-play-list-content .module-play-list-link:last-child');
+    if (lastEpisodeLink) {
+        window.location.href = lastEpisodeLink.href; // 跳转到最后一个链接
+    }
+};
+
+// 将播放最新按钮插入到播发下集按钮的后面
+if (button && button.parentElement) {
+    button.parentElement.insertBefore(playLatestButton, button.nextSibling);
+}
