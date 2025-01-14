@@ -1,36 +1,70 @@
 # AnimeEpisodeTracker
 
-## Description
-AnimeEpisodeTracker is a Chrome extension designed to help users track the episodes of anime they are watching. The extension automatically saves the watch history while users are watching anime and displays the current episode number upon page load.
+## Project Overview
+This is a Chrome extension designed to track the episodes of anime series a user has watched. The extension automatically saves the viewing history as users watch anime, and displays the current episode number when the page loads.
 
-## Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/mingming-ctr/AnimeHistoryTracker.git
-   ```
-2. Navigate to the project directory:
-   ```bash
-   cd AnimeHistoryTracker
-   ```
-3. Open the HTML files in a web browser to view the application.
+## Introduction
+This application is designed to manage the viewing history of anime series, supporting the querying and clearing of records to help users keep track of which episode they were last watching.
 
 ## Features
-- Save watch history: Automatically saves title, URL, episode number, and timestamp while users are watching anime.
-- Use IndexedDB: Stores watch history data using IndexedDB, supporting offline access.
-- Display current episode number upon page load: Shows the current episode number of the anime being watched when the page loads.
-- Query watch history records.
-- Clear all records.
-- Sort records in reverse chronological order.
+- **Save Viewing History**: Automatically saves the title, URL, episode number, and timestamp when a user watches an anime.
+- **IndexedDB Storage**: Uses IndexedDB to store the viewing history, supporting offline access.
+- **Display Current Episode on Page Load**: Shows the current anime episode number when the page is loaded.
+- **Query Viewing History**: Allows users to query their viewing history.
+- **Clear All Records**: Clears all stored history.
+- **Sort by Timestamp**: Records are sorted in reverse chronological order.
 
-## Usage
-- To display records, ensure that the necessary data is loaded into the application.
-- Use the popup interface to interact with the features.
+## File Structure
+Current Directory.
+```
+├── background.js        // 后台脚本
+├── content.js           // 主逻辑
+├── Database.js          // 数据库相关操作
+├── History.js           // 观看历史相关操作
+├── IndexedDBHelper.js   // IndexedDB 操作的辅助类
+├── manifest.json        // 扩展程序的清单文件
+├── popup.html           // 弹出界面的 HTML 文件
+├── popup.js             // 弹出界面逻辑
+├── push.ps1             // PowerShell 脚本
+├── query.html           // 查询界面的 HTML 文件
+├── query.js             // 处理查询逻辑
+├── readme.en.md        // 英文 README 文件
+└── README.md            // 项目的 README 文件
+└── images               // 存放图标的文件夹
+    ├── icon128.png     // 128x128 图标
+    ├── icon16.png      // 16x16 图标
+    └── icon48.png      // 48x48 图标
+```
 
-## Contribution
-Contributions are welcome! Please follow these steps:
-1. Fork the repository.
-2. Create a new branch for your feature or bug fix.
-3. Submit a pull request detailing your changes.
+
+## Usage Instructions
+1. Open the application.
+2. Enter query conditions to search the viewing history.
+3. Click the "Clear" button to delete all records.
+4. Open a supported anime page, and the extension will automatically record your viewing history.
+5. Click the extension icon to view the current episode.
+
+## How to View the Database
+Due to Chrome extension limitations, you may not always be able to view the IndexedDB database in the usual way (e.g., accessing it through the Service Worker console). This may be a known issue with Chrome, especially in the extension environment. The recommended way to view the database is as follows:
+
+1. **Access the Database through the 1st-party page:**
+   - Open the page that the extension interacts with (i.e., a supported anime page).
+   - Press `F12` or right-click and choose "Inspect" to open the Developer Tools.
+   - Go to the "Console" tab and manually input the following code to view the database contents:
+     ```javascript
+     const request = indexedDB.open('YourDatabaseName');
+     request.onsuccess = function(event) {
+         const db = event.target.result;
+         const transaction = db.transaction(['YourObjectStoreName'], 'readonly');
+         const store = transaction.objectStore('YourObjectStoreName');
+         const allRecords = store.getAll();
+         allRecords.onsuccess = function() {
+             console.log(allRecords.result);
+         };
+     };
+     ```
+
+We welcome contributions in any form! Please submit issues or pull requests.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License.

@@ -16,14 +16,24 @@
 
 ## 文件结构
 ```
-d:/temp/player/
-├── Database.js      // 数据库相关操作
-├── History.js       // 观看历史相关操作
-├── WatchHistory.js   // 观看历史记录类
-├── content.js       // 主逻辑
-├── background.js    // 后台脚本
-├── popup.js         // 弹出界面逻辑
-└── utils.js         // 工具函数
+当前目录.
+├── background.js        // 后台脚本
+├── content.js           // 主逻辑
+├── Database.js          // 数据库相关操作
+├── History.js           // 观看历史相关操作
+├── IndexedDBHelper.js   // IndexedDB 操作的辅助类
+├── manifest.json        // 扩展程序的清单文件
+├── popup.html           // 弹出界面的 HTML 文件
+├── popup.js             // 弹出界面逻辑
+├── push.ps1             // PowerShell 脚本
+├── query.html           // 查询界面的 HTML 文件
+├── query.js             // 处理查询逻辑
+├── readme.en.md        // 英文 README 文件
+└── README.md            // 项目的 README 文件
+└── images               // 存放图标的文件夹
+    ├── icon128.png     // 128x128 图标
+    ├── icon16.png      // 16x16 图标
+    └── icon48.png      // 48x48 图标
 ```
 
 ## 使用说明

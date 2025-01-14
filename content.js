@@ -71,21 +71,21 @@ class VideoPlayer {
         document.removeEventListener('keydown', this.keydownListener);
     }
 
-    checkUrlAndSaveHistory() {
-        const currentUrl = window.location.href;
-        const pattern = /^(https?:\/\/[^\s/$.?#].[^\s]*\/dongmanplay\/\d+-\d+-\d+\.html)$/;
-        if (pattern.test(currentUrl)) {
-            const episodeNumber = currentUrl.match(/-(\d+)-(\d+)\.html$/);
-            const episodeText = episodeNumber ? `第${episodeNumber[2].padStart(3, '0')}集` : '';
-            const animeTitle = document.querySelector('.module-info-heading h1 a');
-            const titleText = animeTitle ? animeTitle.innerText : '';
-            chrome.runtime.sendMessage({action: 'recordWatchHistory', title: titleText, url: currentUrl, episode: episodeText}, (response) => {
-                console.log('保存状态:', response.status);
-            });
-        } else {
-            console.log('当前播放地址不符合要求，不用记录。');
-        }
+checkUrlAndSaveHistory() {
+    const currentUrl = window.location.href;
+    const pattern = /^(https?:\/\/[^\s/$.?#].[^\s]*\/dongmanplay\/\d+-\d+-\d+\.html)$/;
+    if (pattern.test(currentUrl)) {
+        const episodeNumber = currentUrl.match(/-(\d+)-(\d+)\.html$/);
+        const episodeText = episodeNumber ? `${episodeNumber[2].padStart(3, '0')}` : '001';
+        const animeTitle = document.querySelector('.module-info-heading h1 a');
+        const titleText = animeTitle ? animeTitle.innerText : '';
+        chrome.runtime.sendMessage({action: 'recordWatchHistory', title: titleText, url: currentUrl, episode: episodeText}, (response) => {
+            console.log('保存状态:', response);
+        });
+    } else {
+        console.log('当前播放地址不符合要求，不用记录。');
     }
+}
 }
 
 let playerInstance = null; // 用于存储 VideoPlayer 的单例实例
@@ -98,14 +98,6 @@ let playerInstance = null; // 用于存储 VideoPlayer 的单例实例
         player.init();
     })();
 
-    // 发送消息请求打开数据库
-    chrome.runtime.sendMessage({action: 'openDatabase'}, (response) => {
-        console.log(response);
-    });
-
-    // 发送测试消息
-    const response = await chrome.runtime.sendMessage({action: 'testMessage'});
-    console.log('Test message response:', response);
 
     // 移除事件监听器
     window.addEventListener('beforeunload', () => {

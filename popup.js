@@ -1,87 +1,69 @@
-// popup.js
-
+import { db } from './Database.js'; // 导入 Database 单例
 /**
- * Popup 类，负责加载和显示历史记录
+ * Popup 类负责管理观看历史的显示和操作。
  */
 class Popup {
-    /**
-     * 构造函数，初始化数据库名称和事件监听
-     */
     constructor() {
-        this.dbName = 'AnimeHistoryDB'; // 数据库名称
-        document.addEventListener('DOMContentLoaded', this.loadWatchHistory.bind(this)); // 绑定 DOMContentLoaded 事件以加载历史记录
+        // 可以在这里初始化任何需要的属性
     }
+    // 加载观看历史
+    async loadWatchHistory() {
+        try {
+            // 初始化数据库
+            // await db.init();
 
-    /**
-     * 加载历史记录
-     */
-    loadWatchHistory() {
-        const request = indexedDB.open(this.dbName, 1); // 打开数据库
+            // 获取所有观看记录（假设有一个方法来获取所有记录）
+            const allRecords = await db.getAllRecords(); // 需要在 Database.js 中实现这个方法
 
-        request.onsuccess = (event) => {
-            const db = event.target.result; // 获取数据库对象
-            const transaction = db.transaction(['watchHistory'], 'readonly'); // 创建只读事务
-            const objectStore = transaction.objectStore('watchHistory'); // 获取对象存储
-            const getAllRequest = objectStore.getAll(); // 获取所有记录
 
-            getAllRequest.onsuccess = () => {
-                const records = getAllRequest.result; // 获取读取到的记录
-                console.log('读取到的记录:', records); // 输出读取到的记录
-                this.displayRecords(records); // 显示读取到的记录
-            };
+            // 过滤出唯一的动画片记录
+            const uniqueAnimeRecords = this.filterUniqueAnimeRecords(allRecords);
 
-            getAllRequest.onerror = (event) => {
-                console.error('获取记录失败:', event.target.error); // 输出获取记录失败的错误
-            };
-        };
-
-        request.onerror = (event) => {
-            console.error('数据库打开失败:', event.target.error); // 输出数据库打开失败的错误
-        };
+            this.displayRecords(uniqueAnimeRecords); // 显示记录的函数
+        } catch (error) {
+            console.error('Error loading watch history:', error);
+        }
     }
-
     /**
-     * 显示历史记录
-     * @param {Array} records 历史记录数组
+     * 过滤出唯一的动画片记录，保留最后一次播放的内容，并按时间倒序排序。
+     * @param {Array} records - 所有观看记录
+     * @returns {Array} - 过滤后的唯一动画片记录
      */
-    displayRecords(records) {
-        const historyList = document.getElementById('historyList'); // 获取历史记录列表元素
-        historyList.innerHTML = ''; // 清空历史记录列表
-
-        const latestRecords = new Map(); // 使用 Map 存储每个动漫的最近观看记录
+    filterUniqueAnimeRecords(records) {
+        const uniqueRecords = {};
 
         records.forEach(record => {
-            if (!latestRecords.has(record.title) || new Date(latestRecords.get(record.title).timestamp) < new Date(record.timestamp)) {
-                latestRecords.set(record.title, record); // 只保留每个动漫最近观看的记录
+            // 假设 record.title 是动画片的标题
+            if (!uniqueRecords[record.title] || new Date(record.timestamp) > new Date(uniqueRecords[record.title].timestamp)) {
+                uniqueRecords[record.title] = record; // 保留最后一次播放的记录
             }
         });
 
-        const sortedRecords = Array.from(latestRecords.values()).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)); // 按时间倒序排列
+        // 将唯一记录转换为数组并按时间戳倒序排序
+        return Object.values(uniqueRecords).sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    }
 
-        sortedRecords.forEach(record => {
-            const listItem = document.createElement('li'); // 创建列表项元素
-            const recordContainer = document.createElement('div'); // 创建记录容器元素
-            recordContainer.style.display = 'flex'; // 设置容器显示样式
-            recordContainer.style.justifyContent = 'space-between'; // 设置容器内容对齐方式
-            recordContainer.style.width = '100%'; // 设置容器宽度
+    // 显示记录的函数
+    displayRecords(records) {
+        const recordsContainer = document.getElementById('historyList'); // 使用正确的 ID
+        recordsContainer.innerHTML = ''; // 清空现有内容
 
-            const titleSpan = document.createElement('span'); // 创建标题元素
-            titleSpan.className = 'record-title'; // 设置标题类名
-            titleSpan.style.flex = '1'; // 设置标题宽度
-            titleSpan.textContent = record.title; // 设置动漫标题
-
-            const episodeLink = document.createElement('a'); // 创建集数链接元素
-            episodeLink.className = 'record-episode'; // 设置集数链接类名
-            episodeLink.href = record.url; // 设置集数链接地址
+        records.forEach(record => {
+            const recordElement = document.createElement('div');
+            const episodeLink = document.createElement('a');
+            episodeLink.href = record.url; // 设置链接为动漫网址
+            episodeLink.textContent = `第${record.episode}集`; // 设置链接文本为“第N集”
             episodeLink.target = '_blank'; // 在新标签页中打开链接
-            episodeLink.textContent = `第${record.episode}集`; // 设置集数
 
-            recordContainer.appendChild(titleSpan); // 将标题添加到容器
-            recordContainer.appendChild(episodeLink); // 将集数链接添加到容器
-            listItem.appendChild(recordContainer); // 将容器添加到列表项
-            historyList.appendChild(listItem); // 将记录添加到历史记录列表
+            recordElement.textContent = `${record.title} `; // 显示动漫标题
+            recordElement.appendChild(episodeLink); // 将链接添加到记录元素中
+
+            recordsContainer.appendChild(recordElement); // 将记录元素添加到容器中
         });
+
     }
 }
 
-const popup = new Popup(); // 创建 Popup 类的实例并加载历史记录
+// 实例化 Popup 类并加载观看历史
+const popup = new Popup();
+popup.loadWatchHistory();

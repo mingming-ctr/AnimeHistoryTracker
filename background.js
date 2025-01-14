@@ -1,5 +1,5 @@
-import { openDatabase } from './Database.js';
-import { recordWatchHistory } from './History.js';
+import { db } from './Database.js';
+import { History } from './History.js';
 
 /**
  * Background 脚本类，负责监听和处理来自其他脚本的消息。
@@ -31,21 +31,15 @@ class Background {
      * @param {function} sendResponse - 响应消息的函数
      */
     async handleMessage(request, sendResponse) {
+
+        // db.init();
+
         // 根据请求的动作执行相应的操作
         switch (request.action) {
-            case 'openDatabase':
-                try {
-                    await openDatabase(); // 打开数据库
-                    sendResponse({status: 'success', message: 'Database opened!'});
-                } catch (error) {
-                    sendResponse({status: 'error', message: error.message}); // 返回错误信息
-                }
-                break;
-
             case 'recordWatchHistory':
                 console.log('记录观看历史:', request);
                 try {
-                    await recordWatchHistory(request.title, request.url, request.episode); // 记录观看历史
+                    await History.recordWatchHistory(request.title, request.url, request.episode); // 记录观看历史
                     sendResponse({status: 'success', message: 'Watch history recorded!'});
                 } catch (error) {
                     sendResponse({status: 'error', message: error.message}); // 返回错误信息
