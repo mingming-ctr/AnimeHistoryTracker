@@ -7,7 +7,7 @@
     "activeTab"
   ],
   "background": {    
-    "service_worker": "background.js",
+    "service_worker": "dist/bundle.js",
     "type": "module"
   },
   "action": {
