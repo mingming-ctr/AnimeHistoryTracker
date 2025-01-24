@@ -59,7 +59,7 @@ async handleSearch() {
     async queryDeleteRecord(id) {
         try {
             await db.deleteAnime(id); // 使用 db 删除指定 ID 的记录
-            this.loadWatchHistory(); // 删除成功后重新显示记录
+            this.handleSearch(); // 删除成功后重新显示记录
         } catch (error) {
             console.error('Error deleting record:', error);
         }
