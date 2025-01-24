@@ -31,6 +31,7 @@ class AnimeFetcher {
             console.error('Error fetching the latest episode:', error);
         }
     }
+
     extractLatestEpisodeUrl($) {
         // 查找所有包含集链接的 <a> 标签
         const episodeLinks = $('a.module-play-list-link'); // 替换为实际选择器
@@ -87,6 +88,8 @@ class AnimeFetcher {
         });
         return watchAnimeRecords; // 返回更新后的记录
     }
+
+
 }
 // 导出 AnimeFetcher 类以供其他模块使用
 export { AnimeFetcher };

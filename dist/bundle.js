@@ -47,6 +47,7 @@ class AnimeFetcher {
             console.error('Error fetching the latest episode:', error);
         }
     }
+
     extractLatestEpisodeUrl($) {
         // 查找所有包含集链接的 <a> 标签
         const episodeLinks = $('a.module-play-list-link'); // 替换为实际选择器
@@ -103,6 +104,8 @@ class AnimeFetcher {
         });
         return watchAnimeRecords; // 返回更新后的记录
     }
+
+
 }
 // 导出 AnimeFetcher 类以供其他模块使用
 
@@ -204,13 +207,54 @@ class Database {
         return records;
     }
 
-// 清空所有记录
-async clearAllRecords() {
+    // 清空所有记录
+    async clearAllRecords() {
 
-    await this.init();
-   return await this.dbHelper.clearAllRecords(Database.STORE_NAME); // 传递 STORE_NAME
-}
+        await this.init();
+        return await this.dbHelper.clearAllRecords(Database.STORE_NAME); // 传递 STORE_NAME
+    }
 
+    async getUniqueTitles() {
+        try {
+            const records = await this.getAllRecords(); // 获取所有记录
+            const uniqueTitles = new Set(); // 使用 Set 来去重
+
+            records.forEach(record => {
+                if (record.title) {
+                    // 假设 title 是包含 URL 的字段
+                    uniqueTitles.add(record.title); // 将格式化后的 URL 添加到 Set
+                }
+            });
+
+            return Array.from(uniqueTitles); // 返回去重后的数组
+        } catch (error) {
+            console.error('Error fetching unique titles:', error);
+            throw error; // 重新抛出错误以便上层处理
+        }
+    }
+
+    async getUniqueUrls() {
+        try {
+            const records = await this.getAllRecords(); // 获取所有记录
+            const uniqueUrls = new Set(); // 使用 Set 来去重
+
+            records.forEach(record => {
+                if (record.url) { // 确保记录中有 url 字段
+                    let url = record.url; // 直接读取 url 字段
+                    // 替换 'dongmanplay' 为 'dongman'
+                    url = url.replace('dongmanplay', 'dongman');
+                    // 使用正则表达式去掉 -1-154 这样的部分
+                    const formattedUrl = url.replace(/(-\d+-\d+\.html)$/, '.html');
+                    uniqueUrls.add(formattedUrl); // 将格式化后的 URL 添加到 Set
+                }
+            });
+
+            return Array.from(uniqueUrls); // 返回去重后的 URL 数组
+        } catch (error) {
+            console.error('Error fetching unique URLs:', error);
+            throw error; // 重新抛出错误以便上层处理
+        }
+    }
 
 }
 
@@ -19475,7 +19519,7 @@ class Background {
     constructor() {
         console.log('Background script is ready and listening for messages');
         this.init(); // 初始化消息监听器
-        this.getLatestAnimeEpisode();
+        this.updateAllAnimeEpisodes();
     }
 
     /**
@@ -19521,24 +19565,46 @@ class Background {
      * 获取最新动漫集的链接
      * @returns {Promise<void>}
      */
-   async getLatestAnimeEpisode() {
-       const animeFetcher = new _AnimeFetcher_js__WEBPACK_IMPORTED_MODULE_2__.AnimeFetcher('https://www.295k.cc/dongman/8122.html'); // 替换为实际 URL
-       const latestEpisodeInfo = await animeFetcher.fetchLatestEpisode();
-   
-       console.log(`动漫名称: ${latestEpisodeInfo.title}`);
-       console.log(`最新集数: ${latestEpisodeInfo.latestEpisodeNumber}`);
-       console.log(`最新集链接: ${latestEpisodeInfo.latestEpisodeUrl}`);
-   
-       // 调用新添加的方法获取观看动漫记录，传入 title
-       const watchAnimeRecords = await animeFetcher.fetchWatchAnimeRecords(latestEpisodeInfo.title);
-       if (watchAnimeRecords.length > 0) {
-           // 调用 addPropertiesToRecords 方法
-           const updatedRecords = animeFetcher.addPropertiesToRecords(watchAnimeRecords, latestEpisodeInfo);
-           console.log('更新后的观看动漫记录:', updatedRecords);
-       } else {
-           console.log('没有找到观看动漫记录');
-       }
-   }
+    async getLatestAnimeEpisode(url) {
+
+        const animeFetcher = new _AnimeFetcher_js__WEBPACK_IMPORTED_MODULE_2__.AnimeFetcher(url); // 替换为实际 URL
+        const latestEpisodeInfo = await animeFetcher.fetchLatestEpisode();
+
+        console.log(`动漫名称: ${latestEpisodeInfo.title}`);
+        console.log(`最新集数: ${latestEpisodeInfo.latestEpisodeNumber}`);
+        console.log(`最新集链接: ${latestEpisodeInfo.latestEpisodeUrl}`);
+
+        // 调用新添加的方法获取观看动漫记录，传入 title
+        const watchAnimeRecords = await animeFetcher.fetchWatchAnimeRecords(latestEpisodeInfo.title);
+        if (watchAnimeRecords.length > 0) {
+            // 调用 addPropertiesToRecords 方法
+            const updatedRecords = animeFetcher.addPropertiesToRecords(watchAnimeRecords, latestEpisodeInfo);
+            console.log('更新后的观看动漫记录:', updatedRecords);
+        } else {
+            console.log('没有找到观看动漫记录');
+        }
+    }
+
+      /**
+     * 更新所有动漫的最新一集
+     * @returns {Promise<void>}
+     */
+      async updateAllAnimeEpisodes() {
+        try {
+            // 获取唯一标题列表
+            const uniqueUrls = await _Database_js__WEBPACK_IMPORTED_MODULE_0__.db.getUniqueUrls();
+            console.log(uniqueUrls);
+
+            // 遍历每个 URL 并更新最新一集
+            for (const url of uniqueUrls) {  
+                console.log(`Fetching latest episode from: ${url}`); // 添加此行          
+                await this.getLatestAnimeEpisode(url);
+            }
+        } catch (error) {
+            console.log('Error updating all anime episodes:', error);
+            console.error('Error updating all anime episodes:', error);
+        }
+    }
 }
 
 // 创建 Background 类的实例并启动监听器

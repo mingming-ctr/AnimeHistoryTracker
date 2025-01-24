@@ -15,7 +15,7 @@ class Background {
     constructor() {
         console.log('Background script is ready and listening for messages');
         this.init(); // 初始化消息监听器
-        this.getLatestAnimeEpisode();
+        this.updateAllAnimeEpisodes();
     }
 
     /**
@@ -61,24 +61,46 @@ class Background {
      * 获取最新动漫集的链接
      * @returns {Promise<void>}
      */
-   async getLatestAnimeEpisode() {
-       const animeFetcher = new AnimeFetcher('https://www.295k.cc/dongman/8122.html'); // 替换为实际 URL
-       const latestEpisodeInfo = await animeFetcher.fetchLatestEpisode();
-   
-       console.log(`动漫名称: ${latestEpisodeInfo.title}`);
-       console.log(`最新集数: ${latestEpisodeInfo.latestEpisodeNumber}`);
-       console.log(`最新集链接: ${latestEpisodeInfo.latestEpisodeUrl}`);
-   
-       // 调用新添加的方法获取观看动漫记录，传入 title
-       const watchAnimeRecords = await animeFetcher.fetchWatchAnimeRecords(latestEpisodeInfo.title);
-       if (watchAnimeRecords.length > 0) {
-           // 调用 addPropertiesToRecords 方法
-           const updatedRecords = animeFetcher.addPropertiesToRecords(watchAnimeRecords, latestEpisodeInfo);
-           console.log('更新后的观看动漫记录:', updatedRecords);
-       } else {
-           console.log('没有找到观看动漫记录');
-       }
-   }
+    async getLatestAnimeEpisode(url) {
+
+        const animeFetcher = new AnimeFetcher(url); // 替换为实际 URL
+        const latestEpisodeInfo = await animeFetcher.fetchLatestEpisode();
+
+        console.log(`动漫名称: ${latestEpisodeInfo.title}`);
+        console.log(`最新集数: ${latestEpisodeInfo.latestEpisodeNumber}`);
+        console.log(`最新集链接: ${latestEpisodeInfo.latestEpisodeUrl}`);
+
+        // 调用新添加的方法获取观看动漫记录，传入 title
+        const watchAnimeRecords = await animeFetcher.fetchWatchAnimeRecords(latestEpisodeInfo.title);
+        if (watchAnimeRecords.length > 0) {
+            // 调用 addPropertiesToRecords 方法
+            const updatedRecords = animeFetcher.addPropertiesToRecords(watchAnimeRecords, latestEpisodeInfo);
+            console.log('更新后的观看动漫记录:', updatedRecords);
+        } else {
+            console.log('没有找到观看动漫记录');
+        }
+    }
+
+      /**
+     * 更新所有动漫的最新一集
+     * @returns {Promise<void>}
+     */
+      async updateAllAnimeEpisodes() {
+        try {
+            // 获取唯一标题列表
+            const uniqueUrls = await db.getUniqueUrls();
+            console.log(uniqueUrls);
+
+            // 遍历每个 URL 并更新最新一集
+            for (const url of uniqueUrls) {  
+                console.log(`Fetching latest episode from: ${url}`); // 添加此行          
+                await this.getLatestAnimeEpisode(url);
+            }
+        } catch (error) {
+            console.log('Error updating all anime episodes:', error);
+            console.error('Error updating all anime episodes:', error);
+        }
+    }
 }
 
 // 创建 Background 类的实例并启动监听器

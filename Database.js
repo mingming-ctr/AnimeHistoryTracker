@@ -81,13 +81,54 @@ class Database {
         return records;
     }
 
-// 清空所有记录
-async clearAllRecords() {
+    // 清空所有记录
+    async clearAllRecords() {
 
-    await this.init();
-   return await this.dbHelper.clearAllRecords(Database.STORE_NAME); // 传递 STORE_NAME
-}
+        await this.init();
+        return await this.dbHelper.clearAllRecords(Database.STORE_NAME); // 传递 STORE_NAME
+    }
 
+    async getUniqueTitles() {
+        try {
+            const records = await this.getAllRecords(); // 获取所有记录
+            const uniqueTitles = new Set(); // 使用 Set 来去重
+
+            records.forEach(record => {
+                if (record.title) {
+                    // 假设 title 是包含 URL 的字段
+                    uniqueTitles.add(record.title); // 将格式化后的 URL 添加到 Set
+                }
+            });
+
+            return Array.from(uniqueTitles); // 返回去重后的数组
+        } catch (error) {
+            console.error('Error fetching unique titles:', error);
+            throw error; // 重新抛出错误以便上层处理
+        }
+    }
+
+    async getUniqueUrls() {
+        try {
+            const records = await this.getAllRecords(); // 获取所有记录
+            const uniqueUrls = new Set(); // 使用 Set 来去重
+
+            records.forEach(record => {
+                if (record.url) { // 确保记录中有 url 字段
+                    let url = record.url; // 直接读取 url 字段
+                    // 替换 'dongmanplay' 为 'dongman'
+                    url = url.replace('dongmanplay', 'dongman');
+                    // 使用正则表达式去掉 -1-154 这样的部分
+                    const formattedUrl = url.replace(/(-\d+-\d+\.html)$/, '.html');
+                    uniqueUrls.add(formattedUrl); // 将格式化后的 URL 添加到 Set
+                }
+            });
+
+            return Array.from(uniqueUrls); // 返回去重后的 URL 数组
+        } catch (error) {
+            console.error('Error fetching unique URLs:', error);
+            throw error; // 重新抛出错误以便上层处理
+        }
+    }
 
 }
 
