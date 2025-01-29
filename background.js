@@ -1,10 +1,16 @@
+
+// 监听浏览器启动事件
+chrome.runtime.onStartup.addListener(() => {
+    console.log("Browser started"); // 浏览器启动时触发更新
+});
+
 import { db } from './Database.js';
 import { History } from './History.js';
 
 // 在 background.js 的顶部导入 AnimeFetcher
 import { AnimeFetcher } from './AnimeFetcher.js'; // 确保路径正确
 
-
+  
 /**
  * Background 脚本类，负责监听和处理来自其他脚本的消息。
  */

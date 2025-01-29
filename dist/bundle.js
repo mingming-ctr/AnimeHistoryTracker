@@ -19503,12 +19503,18 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _History_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./History.js */ "./History.js");
 /* harmony import */ var _AnimeFetcher_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./AnimeFetcher.js */ "./AnimeFetcher.js");
 
+// 监听浏览器启动事件
+chrome.runtime.onStartup.addListener(() => {
+    console.log("Browser started"); // 浏览器启动时触发更新
+});
+
+
 
 
 // 在 background.js 的顶部导入 AnimeFetcher
  // 确保路径正确
 
-
+  
 /**
  * Background 脚本类，负责监听和处理来自其他脚本的消息。
  */
