@@ -42,10 +42,22 @@ class VideoPlayer {
         return button;
     }
 
+    // handleNext(event) {
+    //     event.preventDefault();
+    //     const currentUrl = window.location.href;
+    //     const nextUrl = currentUrl.replace(/(\d+)(?=\.html$)/, (match) => parseInt(match) + 1);
+    //     window.location.href = nextUrl;
+    // }
     handleNext(event) {
         event.preventDefault();
         const currentUrl = window.location.href;
-        const nextUrl = currentUrl.replace(/(\d+)(?=\.html$)/, (match) => parseInt(match) + 1);
+    
+        // 修改正则表达式以匹配新的链接格式
+      const nextUrl = currentUrl.replace(/(\d+)-(\d+)-(\d+)(\.html)/, (match, p1, p2, p3, p4) => {
+          const nextEpisodeNumber = parseInt(p3) + 1; // 只对最后一部分数字加一
+          return `${p1}-${p2}-${nextEpisodeNumber}${p4}`; // 保持格式不变
+      });
+    
         window.location.href = nextUrl;
     }
 
