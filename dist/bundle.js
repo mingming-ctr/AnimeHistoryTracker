@@ -158,10 +158,19 @@ class Database {
     async addAnime(animeData) {
         try {
             await this.init();
+            debugger;
             const message = await this.dbHelper.addData(Database.STORE_NAME, animeData);
             console.log(message);
         } catch (error) {
-            console.error('Error adding anime:', error);
+            // console.error('Error adding anime:', error);
+            console.error(
+                'Error adding anime:',
+                error.name,       // 错误类型，比如 "ConstraintError", "DataError"
+                error.message,    // 错误消息
+                error.code,       // 部分浏览器可能有
+                animeData         // 你尝试插入的数据
+            );
+
         }
     }
 
@@ -352,7 +361,7 @@ class IndexedDBHelper {
     // 创建对象存储
     createObjectStore(db, storeName) {
         if (!db.objectStoreNames.contains(storeName)) {
-            db.createObjectStore(storeName, { keyPath: 'id' });
+            db.createObjectStore(storeName, { keyPath: 'id',autoIncrement: true });
         }
     }
 
@@ -361,6 +370,8 @@ class IndexedDBHelper {
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction([storeName], 'readwrite');
             const store = transaction.objectStore(storeName);
+
+            console.log("准备添加记录：",storeName, data);
             const request = store.add(data);
 
             request.onsuccess = () => {
