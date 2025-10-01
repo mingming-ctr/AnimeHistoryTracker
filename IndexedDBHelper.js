@@ -31,7 +31,7 @@ class IndexedDBHelper {
     // 创建对象存储
     createObjectStore(db, storeName) {
         if (!db.objectStoreNames.contains(storeName)) {
-            db.createObjectStore(storeName, { keyPath: 'id' });
+            db.createObjectStore(storeName, { keyPath: 'id',autoIncrement: true });
         }
     }
 
@@ -40,6 +40,8 @@ class IndexedDBHelper {
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction([storeName], 'readwrite');
             const store = transaction.objectStore(storeName);
+
+            console.log("准备添加记录：",storeName, data);
             const request = store.add(data);
 
             request.onsuccess = () => {

@@ -32,10 +32,19 @@ class Database {
     async addAnime(animeData) {
         try {
             await this.init();
+            debugger;
             const message = await this.dbHelper.addData(Database.STORE_NAME, animeData);
             console.log(message);
         } catch (error) {
-            console.error('Error adding anime:', error);
+            // console.error('Error adding anime:', error);
+            console.error(
+                'Error adding anime:',
+                error.name,       // 错误类型，比如 "ConstraintError", "DataError"
+                error.message,    // 错误消息
+                error.code,       // 部分浏览器可能有
+                animeData         // 你尝试插入的数据
+            );
+
         }
     }
 
